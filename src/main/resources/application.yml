@@ -1,0 +1,45 @@
+server:
+  port: 8083
+spring:
+  devtools:
+    livereload:
+      enabled: true
+  thymeleaf:
+    cache: false
+  freemarker:
+    cache: false
+  profiles:
+    active: test
+  datasource:
+    name: spring
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerOonnectionSize: 20
+    filters: stat, wall, log4j
+  cache:
+    #缓存名称
+    cache-names: def
+  # REDIS (RedisProperties)
+  redis:
+    pool:
+      max-idle: 8 # pool settings ...
+      min-idle: 0
+      max-active: 8
+      max-wait: -1
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.wfc.web.model
+debug: true
+logging:
+  level: info
