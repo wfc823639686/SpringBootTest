@@ -24,7 +24,7 @@ class IqaApi {
     static final String HOST = 'http://jisuznwd.market.alicloudapi.com'
 
     @Value("appcode")
-    static String APP_CODE = "b064284e5f5f42c9a8c1213abab3d474"
+    static String APP_CODE = ""
 
 
 
