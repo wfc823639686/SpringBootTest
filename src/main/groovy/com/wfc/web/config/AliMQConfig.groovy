@@ -5,11 +5,12 @@ import com.aliyun.openservices.ons.api.PropertyKeyConst
 import com.aliyun.openservices.ons.api.bean.ConsumerBean
 import com.aliyun.openservices.ons.api.bean.ProducerBean
 import com.aliyun.openservices.ons.api.bean.Subscription
-import com.wfc.web.alimq.MessageListenerImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+
+import javax.annotation.Resource
 
 
 /**
@@ -24,37 +25,48 @@ class AliMQConfig {
     String SECRET_KEY
     String ONSADDR = "http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet"
 
-    @Autowired
-    MessageListener messageListener
+    final static String USER_TOPIC = "TOPIC_USER"
+    final static String USER_PRODUCER_ID = "PID_USER"
+    final static String USER_CONSUMER_ID = "CID_USER"
+
+    @Resource(name = "myConsumer")
+    MessageListener myConsumer
 
     @Bean
-    Subscription subscription() {
-        return new Subscription(["topic": "RAY_TOPIC_TEST", "expression": "*"])
-    }
-
-    @Bean(initMethod = "start", destroyMethod = "shutdown")
-    ProducerBean producer() {
-        ProducerBean producerBean = new ProducerBean();
+    Properties producerProperties() {
         Properties producerProperties = new Properties();
-        producerProperties.setProperty(PropertyKeyConst.ProducerId, "PID_RAY_TEST")
         producerProperties.setProperty(PropertyKeyConst.AccessKey, ACCESS_KEY)
         producerProperties.setProperty(PropertyKeyConst.SecretKey, SECRET_KEY)
         producerProperties.setProperty(PropertyKeyConst.ONSAddr, ONSADDR)
+        return producerProperties
+    }
+
+    @Bean
+    Properties consumerProperties() {
+        Properties consumerProperties = new Properties();
+        consumerProperties.setProperty(PropertyKeyConst.AccessKey, ACCESS_KEY)
+        consumerProperties.setProperty(PropertyKeyConst.SecretKey, SECRET_KEY)
+        consumerProperties.setProperty(PropertyKeyConst.ONSAddr, ONSADDR)
+        return consumerProperties
+    }
+
+    @Bean(initMethod = "start", destroyMethod = "shutdown")
+    ProducerBean producer(Properties producerProperties) {
+        ProducerBean producerBean = new ProducerBean()
+        producerProperties.setProperty(PropertyKeyConst.ProducerId, "PID_RAY_TEST")
         producerBean.setProperties(producerProperties)
         return producerBean
     }
 
     @Bean(initMethod = "start", destroyMethod = "shutdown")
-    ConsumerBean consumer(Subscription subscription) {
-        ConsumerBean consumerBean = new ConsumerBean();
-        Properties producerProperties = new Properties();
-        producerProperties.setProperty(PropertyKeyConst.ConsumerId, "CID_RAY_TEST")
-        producerProperties.setProperty(PropertyKeyConst.AccessKey, ACCESS_KEY)
-        producerProperties.setProperty(PropertyKeyConst.SecretKey, SECRET_KEY)
-        producerProperties.setProperty(PropertyKeyConst.ONSAddr, ONSADDR)
-        consumerBean.setProperties(producerProperties)
+    ConsumerBean consumer(Properties consumerProperties) {
+        ConsumerBean consumerBean = new ConsumerBean()
+        consumerProperties.setProperty(PropertyKeyConst.ConsumerId, "CID_RAY_TEST")
+        consumerBean.setProperties(consumerProperties)
+
         Map<Subscription, MessageListener> subscriptionTable = new HashMap<>()
-        subscriptionTable.put(subscription, messageListener)
+        Subscription subscription = new Subscription(["topic": "RAY_TOPIC_TEST", "expression": "*"])
+        subscriptionTable.put(subscription, myConsumer)
         consumerBean.setSubscriptionTable(subscriptionTable)
         return consumerBean
     }
