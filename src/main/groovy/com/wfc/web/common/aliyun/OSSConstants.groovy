@@ -7,11 +7,6 @@ import org.springframework.beans.factory.annotation.Value
  */
 class OSSConstants {
 
-    @Value('${my.aliyun.accesskeys}')
-    static String KEY
-    @Value('${my.aliyun.secret}')
-    static String SECRET
-
     final static String RES_BUCKET_NAME = "ssb-resource"
     final static String IMG_BUCKET_NAME = "ssb-img"
     final static String VIDEO_BUCKET_NAME = "ssb-video"

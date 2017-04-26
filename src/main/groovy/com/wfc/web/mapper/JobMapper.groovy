@@ -7,7 +7,9 @@ import org.apache.ibatis.annotations.Insert
 import org.apache.ibatis.annotations.Many
 import org.apache.ibatis.annotations.Mapper
 import org.apache.ibatis.annotations.Result
+import org.apache.ibatis.annotations.ResultMap
 import org.apache.ibatis.annotations.Results
+import org.apache.ibatis.annotations.Select
 import org.apache.ibatis.annotations.SelectProvider
 import org.apache.ibatis.jdbc.SQL
 
@@ -39,7 +41,14 @@ interface JobMapper {
                     many = @Many(select = "com.wfc.web.mapper.EnterpriseCommodityMapper.getCommodities"))
     ])
     @SelectProvider(type = JobSqlBuilder.class, method = "buildGetJobs")
-    List<Job> getJobs(Map map);
+    List<Job> getJobs(Map map)
+
+    @Results(
+            value = [
+                    @Result(column = "job_name", property = "jobName")
+            ])
+    @Select("select job_name, position, position1 from job where id=#{0}")
+    Job getInfo(Integer id)
 
     class JobSqlBuilder {
 

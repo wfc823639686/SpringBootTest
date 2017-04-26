@@ -19,9 +19,9 @@ import javax.annotation.Resource
 @Configuration
 class AliMQConfig {
 
-    @Value('${my.aliyun.accesskeys}')
+    @Value('${aliyun.accesskeys}')
     String ACCESS_KEY
-    @Value('${my.aliyun.secret}')
+    @Value('${aliyun.secret}')
     String SECRET_KEY
     String ONSADDR = "http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet"
 

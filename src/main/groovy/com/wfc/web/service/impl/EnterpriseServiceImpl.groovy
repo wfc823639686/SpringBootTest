@@ -1,7 +1,8 @@
 package com.wfc.web.service.impl
 
 import com.wfc.web.common.utils.UploadUtils
-
+import com.wfc.web.mapper.EnterprisePhotoMapper
+import com.wfc.web.model.EnterprisePhoto
 import com.wfc.web.mongodb.MongoEnterpriseDAO
 import com.wfc.web.mapper.EnterpriseMapper
 import com.wfc.web.mapper.EnterpriseVideoMapper
@@ -24,6 +25,8 @@ class EnterpriseServiceImpl implements EnterpriseService {
     EnterpriseVideoMapper enterpriseVideoMapper
     @Autowired
     EnterpriseMapper enterpriseMapper
+    @Autowired
+    EnterprisePhotoMapper enterprisePhotoMapper
     @Autowired
     MongoEnterpriseDAO mongoEnterpriseDAO
 
@@ -75,5 +78,31 @@ class EnterpriseServiceImpl implements EnterpriseService {
     @Override
     List<MongoEnterprise> sortByDistance(double lng, double lat) {
         mongoEnterpriseDAO.sortByDistance(lng, lat)
+    }
+
+    def insertPhoto(EnterprisePhoto ep) {
+        println('insert photo ' + ep.getEnterpriseId())
+        enterprisePhotoMapper.insert(ep)
+    }
+
+    @Override
+    def updPhotos() {
+        UploadUtils.updPhotos({
+            String[] ss, List ds ->
+                for (String s : ss) {
+                    int id = Integer.parseInt(s)
+                    for (int i = 0; i < ds.size(); i++) {
+                        String d = ds.get(i)
+                        EnterprisePhoto ep = new EnterprisePhoto([
+                                'enterpriseId': id,
+                                'photo': d,
+                                'thumb': d + '@!ephotos',
+                                'pos': i + 1
+                        ])
+                        insertPhoto(ep)
+                    }
+                }
+
+        })
     }
 }

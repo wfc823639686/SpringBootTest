@@ -26,4 +26,10 @@ class EnterpriseController {
         "success"
     }
 
+    @RequestMapping("/updPhotos")
+    Object updPhotos() {
+        enterpriseService.updPhotos()
+        "success"
+    }
+
 }

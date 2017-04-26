@@ -22,4 +22,5 @@ interface EnterpriseService {
 
     List<MongoEnterprise> sortByDistance(double lng, double lat)
 
+    def updPhotos()
 }
