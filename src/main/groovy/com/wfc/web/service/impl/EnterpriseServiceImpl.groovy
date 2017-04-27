@@ -87,22 +87,64 @@ class EnterpriseServiceImpl implements EnterpriseService {
 
     @Override
     def updPhotos() {
-        UploadUtils.updPhotos({
-            String[] ss, List ds ->
-                for (String s : ss) {
-                    int id = Integer.parseInt(s)
-                    for (int i = 0; i < ds.size(); i++) {
-                        String d = ds.get(i)
-                        EnterprisePhoto ep = new EnterprisePhoto([
-                                'enterpriseId': id,
-                                'photo': d,
-                                'thumb': d + '@!ephotos',
-                                'pos': i + 1
-                        ])
-                        insertPhoto(ep)
+        FileReader fr
+        try {
+            fr = new FileReader(UploadUtils.PF_NAME)
+            List<String> lines = fr.readLines()
+            for (String line : lines) {
+                println(line)
+                String[] splits = line.split(' ')
+                if (splits.length == 3) {
+                    String[] ids = splits[1].split(',')
+                    String[] photos = splits[2].split(',')
+                    for (String idstr : ids) {
+                        int id = Integer.parseInt(idstr)
+                        for (int i = 0; i < photos.length; i++) {
+                            updPhoto(id, photos[i], i + 1)
+                        }
                     }
+                } else {
+                    println(line)
                 }
+            }
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+        if (fr != null)
+            fr.close()
+    }
 
-        })
+    def updPhoto(int id, String photo, int pos) {
+        EnterprisePhoto ep = new EnterprisePhoto([
+                'enterpriseId': id,
+                'photo'       : photo,
+                'thumb'       : photo + '@!ephotos',
+                'pos'         : pos
+        ])
+        insertPhoto(ep)
+    }
+
+    def listPhotoDir2File() {
+        PrintStream ps
+        try {
+            File lf = new File(UploadUtils.PF_NAME)
+            if (lf.exists()) {
+                lf.delete()
+            }
+            lf.createNewFile()
+            ps = new PrintStream(new FileOutputStream(lf))
+            UploadUtils.listPhotoDir({
+                String name, List ds ->
+                    List<Integer> ids = enterpriseMapper.getIdsByShortName(name)
+                    String s = "${name} ${ids.join(',')} ${ds.join(',')}\n"
+                    ps.print(s)
+            })
+            ps.flush()
+            ps.close()
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+        if (ps != null)
+            ps.close()
     }
 }

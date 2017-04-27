@@ -16,6 +16,10 @@ class UploadUtils {
 
     static def PHOTO_ROOT = "/Users/wangfengchen/uploads/photos/"
 
+    static def PF_NAME = "/Users/wangfengchen/uploads/pf.txt"
+
+    static Random RANDOM = new Random()
+
     static def uploadVideos(callback) {
         File root = new File(VIDEO_ROOT)
         if (root.isDirectory()) {
@@ -95,6 +99,7 @@ class UploadUtils {
         }
     }
 
+    @Deprecated
     private static String updPhoto(File file, int id) {
         if (file.name.toLowerCase().endsWith('.png')
                 || file.name.toLowerCase().endsWith('.jpg')) {
@@ -108,7 +113,8 @@ class UploadUtils {
         return null
     }
 
-    static String updPhotos(callback) {
+    @Deprecated
+    static def updPhotos(callback) {
         File root = new File(PHOTO_ROOT)
         if (root.isDirectory()) {
             File[] updDirs = root.listFiles()
@@ -127,6 +133,43 @@ class UploadUtils {
                             list.add(d)
                         }
                         callback.call(ss, list)
+                    }
+                }
+            }
+        }
+    }
+
+    private static String updPhoto(File file) {
+        if (file.name.toLowerCase().endsWith('.png')
+                || file.name.toLowerCase().endsWith('.jpg')) {
+            String time = DateFormatUtils.format(new Date(), "yyyyMMddHHmmss")
+            int rad = RANDOM.nextInt()
+            String name = "Image_r${rad}_${time}.jpg"
+            println(name)
+            def r = OSSApi.putObject(OSSConstants.IMG_BUCKET_NAME, name, file)
+            if (r)
+                return "http://ssb-img.shangshaban.com/" + name
+        }
+        return null
+    }
+
+    static def listPhotoDir(callback) {
+        File root = new File(PHOTO_ROOT)
+        if (root.isDirectory()) {
+            File[] updDirs = root.listFiles()//每个企业的相册目录
+            if (updDirs != null && updDirs.length > 0) {
+                for (File updDir : updDirs) {
+                    File[] cs = updDir.listFiles()
+                    if (updDir.isDirectory()
+                            && cs!=null
+                            && cs.length!=0) {
+                        def photoList = []
+                        for (File c : cs) {
+                            String p = updPhoto(c)
+                            if (p != null)
+                                photoList.add(p)
+                        }
+                        callback.call(updDir.name, photoList)
                     }
                 }
             }

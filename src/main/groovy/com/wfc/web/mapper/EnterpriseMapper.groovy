@@ -12,11 +12,14 @@ import org.apache.ibatis.annotations.Update
 interface EnterpriseMapper {
 
     @Select("select * from enterprise where id=#{0}")
-    Enterprise getInfo(Integer id);
+    Enterprise getInfo(Integer id)
 
     @Select("select id, lng, lat from enterprise limit 10")
-    List<Enterprise> getEnterprises();
+    List<Enterprise> getEnterprises()
 
     @Update("update enterprise set video_count=1 where id=#{0}")
-    int updateVideoCount(Integer id);
+    int updateVideoCount(Integer id)
+
+    @Select("select id from enterprise where short_name=#{0}")
+    List<Integer> getIdsByShortName(String sn)
 }

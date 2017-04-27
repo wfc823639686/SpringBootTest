@@ -32,4 +32,10 @@ class EnterpriseController {
         "success"
     }
 
+    @RequestMapping("/listPhotoDir2File")
+    Object listPhotoDir2File() {
+        enterpriseService.listPhotoDir2File()
+        "success"
+    }
+
 }
