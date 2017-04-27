@@ -147,4 +147,67 @@ class EnterpriseServiceImpl implements EnterpriseService {
         if (ps != null)
             ps.close()
     }
+
+    def updVideos() {
+        FileReader fr
+        try {
+            fr = new FileReader(UploadUtils.VF_NAME)
+            List<String> lines = fr.readLines()
+            for (String line : lines) {
+                println(line)
+                String[] splits = line.split(' ')
+                if (splits.length == 4) {
+                    int times = Integer.parseInt(splits[1])
+                    String[] ids = splits[2].split(',')
+                    String[] videos = splits[3].split(',')
+                    for (String idstr : ids) {
+                        int id = Integer.parseInt(idstr)
+                        updVideo(id, videos[0], videos[1], times)
+                    }
+                } else {
+                    println(line)
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+        if (fr != null)
+            fr.close()
+    }
+
+    def updVideo(int id, String v, String p, int  times) {
+        EnterpriseVideo ev = new EnterpriseVideo([
+                'enterpriseId': id,
+                'video'       : v,
+                'photo'       : p,
+                'times'       : times,
+                'status'      : 1
+        ])
+        insertVideo(ev)
+    }
+
+    def listVideoDir2File() {
+        PrintStream ps
+        try {
+            File lf = new File(UploadUtils.VF_NAME)
+            if (lf.exists()) {
+                lf.delete()
+            }
+            lf.createNewFile()
+            ps = new PrintStream(new FileOutputStream(lf))
+            UploadUtils.listVideoDir({
+                String name, String[] ds ->
+                    String[] ss = name.split(' ')
+                    List<Integer> ids = enterpriseMapper.getIdsByShortName(ss[0])
+                    String s = "${name} ${ids.join(',')} ${ds.join(',')}\n"
+                    ps.print(s)
+            })
+            ps.flush()
+            ps.close()
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+        if (ps != null)
+            ps.close()
+    }
 }

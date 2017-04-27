@@ -38,4 +38,16 @@ class EnterpriseController {
         "success"
     }
 
+    @RequestMapping("/updVideos")
+    Object updVideos() {
+        enterpriseService.updVideos()
+        "success"
+    }
+
+    @RequestMapping("/listVideoDir2File")
+    Object listVideoDir2File() {
+        enterpriseService.listVideoDir2File()
+        "success"
+    }
+
 }

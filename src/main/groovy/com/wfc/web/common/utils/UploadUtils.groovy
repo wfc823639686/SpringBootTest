@@ -18,6 +18,8 @@ class UploadUtils {
 
     static def PF_NAME = "/Users/wangfengchen/uploads/pf.txt"
 
+    static def VF_NAME = "/Users/wangfengchen/uploads/vf.txt"
+
     static Random RANDOM = new Random()
 
     static def uploadVideos(callback) {
@@ -122,8 +124,8 @@ class UploadUtils {
                 for (File updDir : updDirs) {
                     File[] cs = updDir.listFiles()
                     if (updDir.isDirectory()
-                            && cs!=null
-                            && cs.length!=0) {
+                            && cs != null
+                            && cs.length != 0) {
                         String[] ss = updDir.name.split(',')
                         int eid = Integer.parseInt(ss[0])
                         def list = []
@@ -140,16 +142,13 @@ class UploadUtils {
     }
 
     private static String updPhoto(File file) {
-        if (file.name.toLowerCase().endsWith('.png')
-                || file.name.toLowerCase().endsWith('.jpg')) {
-            String time = DateFormatUtils.format(new Date(), "yyyyMMddHHmmss")
-            int rad = RANDOM.nextInt()
-            String name = "Image_r${rad}_${time}.jpg"
-            println(name)
-            def r = OSSApi.putObject(OSSConstants.IMG_BUCKET_NAME, name, file)
-            if (r)
-                return "http://ssb-img.shangshaban.com/" + name
-        }
+        String time = DateFormatUtils.format(new Date(), "yyyyMMddHHmmss")
+        int rad = RANDOM.nextInt()
+        String name = "Image_r${rad}_${time}.jpg"
+        println(name)
+        def r = OSSApi.putObject(OSSConstants.IMG_BUCKET_NAME, name, file)
+        if (r)
+            return "http://ssb-img.shangshaban.com/" + name
         return null
     }
 
@@ -161,16 +160,61 @@ class UploadUtils {
                 for (File updDir : updDirs) {
                     File[] cs = updDir.listFiles()
                     if (updDir.isDirectory()
-                            && cs!=null
-                            && cs.length!=0) {
+                            && cs != null
+                            && cs.length != 0) {
                         def photoList = []
                         for (File c : cs) {
-                            String p = updPhoto(c)
-                            if (p != null)
-                                photoList.add(p)
+                            if (c.name.toLowerCase().endsWith('.png')
+                                    || c.name.toLowerCase().endsWith('.jpg')) {
+                                String p = updPhoto(c)
+                                if (p != null)
+                                    photoList.add(p)
+                            }
                         }
                         callback.call(updDir.name, photoList)
                     }
+                }
+            }
+        }
+    }
+
+    private static def updVideo(File file) {
+        String time = DateFormatUtils.format(new Date(), "yyyyMMddHHmmss")
+        int rad = RANDOM.nextInt()
+        String name = "Video_r${rad}_${time}.mp4"
+        println(name)
+        def r = OSSApi.putObject(OSSConstants.VIDEO_BUCKET_NAME, name, file)
+        if (r)
+            return "http://ssb-video.shangshaban.com/" + name
+        return null
+    }
+
+    private static String[] updVideoAndPhoto(File dir) {
+        String[] results = new String[2]
+        if (dir.isDirectory()) {
+            File[] updDirs = dir.listFiles()
+            if(updDirs != null && updDirs.length > 0) {
+                for (File file : updDirs) {
+                    if (file.name.toLowerCase().endsWith('.mp4')) {
+                        results[0] = updVideo(file)
+                    } else if (file.name.toLowerCase().endsWith('.jpg')
+                            || file.name.toLowerCase().endsWith('.png')) {
+                        results[1] = updPhoto(file)
+                    }
+                }
+            }
+        }
+        return results
+    }
+
+    static def listVideoDir(callback) {
+        File root = new File(VIDEO_ROOT)
+        if (root.isDirectory()) {
+            File[] updDirs = root.listFiles()//每个企业的相册目录
+            if (updDirs != null && updDirs.length > 0) {
+                for (File updDir : updDirs) {
+                    String[] ps = updVideoAndPhoto(updDir)
+                    callback.call(updDir.name, ps)
                 }
             }
         }
