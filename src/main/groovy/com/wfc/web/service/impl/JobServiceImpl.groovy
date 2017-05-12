@@ -27,4 +27,13 @@ class JobServiceImpl implements JobService {
                 "offset": 11
         ])
     }
+
+    @Override
+    def importJobLatest() {
+        List<Integer> cities = jobMapper.getJobCities()
+        for (Integer i : cities) {
+            println("city " + i)
+            jobMapper.insertJobLatest(i)
+        }
+    }
 }

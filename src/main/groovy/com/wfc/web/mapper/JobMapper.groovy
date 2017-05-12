@@ -50,6 +50,12 @@ interface JobMapper {
     @Select("select job_name, position, position1 from job where id=#{0}")
     Job getInfo(Integer id)
 
+    @Insert("insert into job_latest select id, update_time, work_city city from job where work_city=#{0} limit 1000")
+    int insertJobLatest(Integer city)
+
+    @Select("select work_city from job where work_city > 120000 and work_city !=370200 group by work_city")
+    List<Integer> getJobCities()
+
     class JobSqlBuilder {
 
         String buildGetJobs(Map map) {

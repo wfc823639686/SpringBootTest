@@ -8,5 +8,7 @@ import com.wfc.web.model.QueryJobsModel
  */
 interface JobService {
 
-    List<Job> getJobs(QueryJobsModel q);
+    List<Job> getJobs(QueryJobsModel q)
+
+    def importJobLatest()
 }
