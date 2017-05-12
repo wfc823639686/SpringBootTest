@@ -33,7 +33,11 @@ class JobServiceImpl implements JobService {
         List<Integer> cities = jobMapper.getJobCities()
         for (Integer i : cities) {
             println("city " + i)
-            jobMapper.insertJobLatest(i)
+            try {
+                jobMapper.insertJobLatest(i)
+            } catch (Exception e) {
+                e.printStackTrace()
+            }
         }
     }
 }
