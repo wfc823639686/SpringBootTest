@@ -1,5 +1,6 @@
 package com.wfc.web.service.impl
 
+import com.wfc.web.common.utils.POIUtils
 import com.wfc.web.common.utils.UploadUtils
 import com.wfc.web.mapper.EnterprisePhotoMapper
 import com.wfc.web.model.EnterprisePhoto
@@ -11,7 +12,14 @@ import com.wfc.web.model.EnterpriseVideo
 import com.wfc.web.model.MongoEnterprise
 
 import com.wfc.web.service.EnterpriseService
+import org.apache.commons.lang3.StringUtils
+import org.apache.poi.hssf.usermodel.HSSFCell
+import org.apache.poi.hssf.usermodel.HSSFRow
+import org.apache.poi.hssf.usermodel.HSSFSheet
+import org.apache.poi.hssf.usermodel.HSSFWorkbook
+import org.apache.poi.poifs.filesystem.POIFSFileSystem
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint
 import org.springframework.stereotype.Service
 
@@ -29,6 +37,9 @@ class EnterpriseServiceImpl implements EnterpriseService {
     EnterprisePhotoMapper enterprisePhotoMapper
     @Autowired
     MongoEnterpriseDAO mongoEnterpriseDAO
+    @Value('${config.locationExcelFilePath}')
+    String locationExcelFilePath
+
 
     @Override
     def insertVideo(EnterpriseVideo enterpriseVideo) {
@@ -100,7 +111,11 @@ class EnterpriseServiceImpl implements EnterpriseService {
                     for (String idstr : ids) {
                         int id = Integer.parseInt(idstr)
                         for (int i = 0; i < photos.length; i++) {
-                            updPhoto(id, photos[i], i + 1)
+                            if (i == 0) {
+                                updLogo(id, photos[i])
+                            } else {
+                                updPhoto(id, photos[i], i)
+                            }
                         }
                     }
                 } else {
@@ -112,6 +127,14 @@ class EnterpriseServiceImpl implements EnterpriseService {
         }
         if (fr != null)
             fr.close()
+    }
+
+    def updLogo(int id, String photo) {
+        Enterprise e = new Enterprise([
+                "head": photo,
+                "id"  : id
+        ])
+        enterpriseMapper.updateLogo(e)
     }
 
     def updPhoto(int id, String photo, int pos) {
@@ -175,7 +198,7 @@ class EnterpriseServiceImpl implements EnterpriseService {
             fr.close()
     }
 
-    def updVideo(int id, String v, String p, int  times) {
+    def updVideo(int id, String v, String p, int times) {
         EnterpriseVideo ev = new EnterpriseVideo([
                 'enterpriseId': id,
                 'video'       : v,
@@ -209,5 +232,48 @@ class EnterpriseServiceImpl implements EnterpriseService {
         }
         if (ps != null)
             ps.close()
+    }
+
+    @Override
+    def updateLocation() {
+        println(locationExcelFilePath)
+        POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(locationExcelFilePath))
+        //得到Excel工作簿对象
+        HSSFWorkbook wb = new HSSFWorkbook(fs)
+        //得到Excel工作表对象
+        HSSFSheet sheet = wb.getSheetAt(0)
+        int last = sheet.getLastRowNum()
+        println('last ' + last)
+
+        List<Enterprise> enterpriseList = []
+        try {
+            for (i in 0..last) {
+                HSSFRow row = sheet.getRow(i)
+                HSSFCell cell = row.getCell(0)
+                String idStr = POIUtils.getCellStringValue(cell)
+                if (StringUtils.isNotBlank(idStr)) {
+                    int id = Float.parseFloat(idStr)
+                    HSSFCell cell1 = row.getCell(1)
+                    String lngStr = POIUtils.getCellStringValue(cell1)
+                    double lng = Double.parseDouble(lngStr)
+                    HSSFCell cell2 = row.getCell(2)
+                    String latStr = POIUtils.getCellStringValue(cell2)
+                    long lat = Double.parseDouble(latStr)
+                    println "${id} ${lngStr} ${latStr}"
+                    Enterprise e = new Enterprise([
+                            "id" : id,
+                            "lng": lng,
+                            "lat": lat
+                    ])
+                    enterpriseList.add(e)
+                }
+            }
+            for (Enterprise e : enterpriseList) {
+//                println(e)
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
     }
 }

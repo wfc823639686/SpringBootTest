@@ -22,4 +22,10 @@ interface EnterpriseMapper {
 
     @Select("select id from enterprise where short_name=#{0}")
     List<Integer> getIdsByShortName(String sn)
+
+    @Update("update enterprise set lng=#{lng}, lat=#{lat} where id=#{id}")
+    int updateLocation(Enterprise e)
+
+    @Update("update user set head=#{head} where id=#{id}")
+    int updateLogo(Enterprise e)
 }

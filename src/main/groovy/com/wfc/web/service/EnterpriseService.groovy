@@ -29,4 +29,6 @@ interface EnterpriseService {
     def updVideos()
 
     def listVideoDir2File()
+
+    def updateLocation()
 }

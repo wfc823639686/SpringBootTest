@@ -1,22 +1,31 @@
 package com.wfc.web.common.aliyun
 
-import org.springframework.beans.factory.annotation.Value
-
-/**
- * Created by wangfengchen on 2016/11/24.
- */
 class OSSConstants {
 
-    final static String RES_BUCKET_NAME = "ssb-resource"
-    final static String IMG_BUCKET_NAME = "ssb-img"
-    final static String VIDEO_BUCKET_NAME = "ssb-video"
+    static String ACCESS_KEY
+
+    static String SECRET_KEY
+
+    static String RES_BUCKET_NAME
+    static String IMG_BUCKET_NAME
+    static String VIDEO_BUCKET_NAME
 
     final static String ENDPOINT = "http://oss-cn-qingdao.aliyuncs.com"
 
-    final static String DOMAIN = "shangshaban.com"
+    static void debug(String a, String s) {
+        ACCESS_KEY = a
+        SECRET_KEY = s
+        RES_BUCKET_NAME = "ssb-resource-debug"
+        IMG_BUCKET_NAME = "ssb-img-debug"
+        VIDEO_BUCKET_NAME = "ssb-video-debug"
+    }
 
-    final static String IMG_URL = "http://" + IMG_BUCKET_NAME + "." + DOMAIN
-    final static String VIDEO_URL = "http://" + VIDEO_BUCKET_NAME + "." + DOMAIN
-    final static String RES_URL = "http://" + RES_BUCKET_NAME + "." + DOMAIN
+    static void release(String a, String s) {
+        ACCESS_KEY = a
+        SECRET_KEY = s
+        RES_BUCKET_NAME = "ssb-resource"
+        IMG_BUCKET_NAME = "ssb-img"
+        VIDEO_BUCKET_NAME = "ssb-video"
+    }
 
 }

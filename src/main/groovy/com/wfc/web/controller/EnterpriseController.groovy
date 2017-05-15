@@ -50,4 +50,10 @@ class EnterpriseController {
         "success"
     }
 
+    @RequestMapping("/updateLocation")
+    Object updateLocation() {
+        enterpriseService.updateLocation()
+        "success"
+    }
+
 }
