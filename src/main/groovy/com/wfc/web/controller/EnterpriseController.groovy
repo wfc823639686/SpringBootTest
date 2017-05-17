@@ -6,6 +6,7 @@ import com.wfc.web.service.EnterpriseService
 import com.wfc.web.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
 /**
@@ -35,6 +36,12 @@ class EnterpriseController {
     @RequestMapping("/listPhotoDir2File")
     Object listPhotoDir2File() {
         enterpriseService.listPhotoDir2File()
+        "success"
+    }
+
+    @RequestMapping(value = "/fastUpdPhotos", method = RequestMethod.POST)
+    Object fastUpdPhotos() {
+        enterpriseService.fastUpdPhotos()
         "success"
     }
 

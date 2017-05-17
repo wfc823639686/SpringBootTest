@@ -18,6 +18,11 @@ class UploadUtils {
 
     static def PF_NAME = "/Users/wangfengchen/uploads/pf.txt"
 
+    /**
+     * 发生错误写入该文件
+     */
+    static def EPF_NAME = "/Users/wangfengchen/uploads/epf.txt"
+
     static def VF_NAME = "/Users/wangfengchen/uploads/vf.txt"
 
     static Random RANDOM = new Random()
@@ -110,7 +115,7 @@ class UploadUtils {
             println(name)
             def r = OSSApi.putObject(OSSConstants.IMG_BUCKET_NAME, name, file)
             if (r)
-                return "http://ssb-img.shangshaban.com/" + name
+                return "http://${OSSConstants.IMG_BUCKET_NAME}.shangshaban.com/" + name
         }
         return null
     }
@@ -148,7 +153,7 @@ class UploadUtils {
         println(name)
         def r = OSSApi.putObject(OSSConstants.IMG_BUCKET_NAME, name, file)
         if (r)
-            return "http://ssb-img.shangshaban.com/" + name
+            return "http://${OSSConstants.IMG_BUCKET_NAME}.shangshaban.com/" + name
         return null
     }
 
@@ -185,7 +190,7 @@ class UploadUtils {
         println(name)
         def r = OSSApi.putObject(OSSConstants.VIDEO_BUCKET_NAME, name, file)
         if (r)
-            return "http://ssb-video.shangshaban.com/" + name
+            return "http://${OSSConstants.VIDEO_BUCKET_NAME}.shangshaban.com/" + name
         return null
     }
 

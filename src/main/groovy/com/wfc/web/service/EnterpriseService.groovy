@@ -22,9 +22,11 @@ interface EnterpriseService {
 
     List<MongoEnterprise> sortByDistance(double lng, double lat)
 
-    def updPhotos()
+    def updPhotos(List<String> list)
 
     def listPhotoDir2File()
+
+    def fastUpdPhotos()
 
     def updVideos()
 

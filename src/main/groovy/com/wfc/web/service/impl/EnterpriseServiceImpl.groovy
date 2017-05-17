@@ -93,28 +93,37 @@ class EnterpriseServiceImpl implements EnterpriseService {
 
     def insertPhoto(EnterprisePhoto ep) {
         println('insert photo ' + ep.getEnterpriseId())
-        enterprisePhotoMapper.insert(ep)
+        int i = enterprisePhotoMapper.insert(ep)
+        println(i)
     }
 
     @Override
-    def updPhotos() {
+    def updPhotos(List<String> list) {
         FileReader fr
         try {
-            fr = new FileReader(UploadUtils.PF_NAME)
-            List<String> lines = fr.readLines()
+            List<String> lines;
+            if (list == null) {
+                fr = new FileReader(UploadUtils.PF_NAME)
+                lines = fr.readLines()
+            } else {
+                lines = list
+            }
+
             for (String line : lines) {
                 println(line)
                 String[] splits = line.split(' ')
                 if (splits.length == 3) {
-                    String[] ids = splits[1].split(',')
-                    String[] photos = splits[2].split(',')
-                    for (String idstr : ids) {
-                        int id = Integer.parseInt(idstr)
-                        for (int i = 0; i < photos.length; i++) {
-                            if (i == 0) {
-                                updLogo(id, photos[i])
-                            } else {
-                                updPhoto(id, photos[i], i)
+                    if (StringUtils.isNotBlank(splits[1])) {
+                        String[] ids = splits[1].split(',')
+                        String[] photos = splits[2].split(',')
+                        for (String idstr : ids) {
+                            int id = Integer.parseInt(idstr)
+                            for (int i = 0; i < photos.length; i++) {
+                                if (i == 0) {
+                                    updLogo(id, photos[i])
+                                } else {
+                                    updPhoto(id, photos[i], i)
+                                }
                             }
                         }
                     }
@@ -134,7 +143,9 @@ class EnterpriseServiceImpl implements EnterpriseService {
                 "head": photo,
                 "id"  : id
         ])
-        enterpriseMapper.updateLogo(e)
+        println('update head ' + id)
+        int i = enterpriseMapper.updateLogo(e)
+        println(i)
     }
 
     def updPhoto(int id, String photo, int pos) {
@@ -148,27 +159,46 @@ class EnterpriseServiceImpl implements EnterpriseService {
     }
 
     def listPhotoDir2File() {
-        PrintStream ps
+        List<String> list = []
+        PrintStream ps, eps
         try {
             File lf = new File(UploadUtils.PF_NAME)
+            File elf = new File(UploadUtils.EPF_NAME)
             if (lf.exists()) {
                 lf.delete()
             }
+            if (elf.exists()) {
+                elf.delete()
+            }
             lf.createNewFile()
+            elf.createNewFile()
             ps = new PrintStream(new FileOutputStream(lf))
+            eps = new PrintStream(new FileOutputStream(elf))
             UploadUtils.listPhotoDir({
                 String name, List ds ->
                     List<Integer> ids = enterpriseMapper.getIdsByShortName(name)
                     String s = "${name} ${ids.join(',')} ${ds.join(',')}\n"
+                    list.add(s)
                     ps.print(s)
+                    if (ids == null || ids.isEmpty())
+                        eps.print(s)
             })
             ps.flush()
-            ps.close()
+            eps.flush()
         } catch (Exception e) {
             e.printStackTrace()
         }
         if (ps != null)
             ps.close()
+        if (eps != null)
+            eps.close()
+        return list
+    }
+
+    @Override
+    def fastUpdPhotos() {
+        List<String> list = listPhotoDir2File()
+        updPhotos(list)
     }
 
     def updVideos() {
@@ -258,7 +288,7 @@ class EnterpriseServiceImpl implements EnterpriseService {
                     double lng = Double.parseDouble(lngStr)
                     HSSFCell cell2 = row.getCell(2)
                     String latStr = POIUtils.getCellStringValue(cell2)
-                    long lat = Double.parseDouble(latStr)
+                    double lat = Double.parseDouble(latStr)
                     println "${id} ${lngStr} ${latStr}"
                     Enterprise e = new Enterprise([
                             "id" : id,
@@ -270,7 +300,8 @@ class EnterpriseServiceImpl implements EnterpriseService {
             }
             for (Enterprise e : enterpriseList) {
 //                println(e)
-
+                println(e.id +' '+e.lng +' '+ e.lat)
+                enterpriseMapper.updateLocation(e)
             }
         } catch (Exception e) {
             e.printStackTrace()
