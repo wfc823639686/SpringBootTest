@@ -2,6 +2,8 @@ package com.wfc.web.common.aliyun
 
 import com.aliyun.oss.HttpMethod
 import com.aliyun.oss.OSSClient
+import com.aliyun.oss.model.DeleteObjectsRequest
+import com.aliyun.oss.model.DeleteObjectsResult
 import com.aliyun.oss.model.GeneratePresignedUrlRequest
 import com.aliyun.oss.model.PutObjectResult
 import org.apache.commons.lang3.StringUtils
@@ -72,6 +74,16 @@ class OSSApi {
         return result != null && StringUtils.isNotBlank(result.getETag());
     }
 
+    static void delObject(String bucketName, List<String> keys) {
+        OSSClient client = new OSSClient(OSSConstants.ENDPOINT, OSSConstants.ACCESS_KEY, OSSConstants.SECRET_KEY)
+        DeleteObjectsResult deleteObjectsResult = client.deleteObjects(new DeleteObjectsRequest(bucketName).withKeys(keys))
+        List<String> deletedObjects = deleteObjectsResult.getDeletedObjects()
+        for (String s : deletedObjects)
+            println(s)
+        // 关闭client
+        client.shutdown();
+    }
+
 
 //    static void main(String[] args) throws Exception {
 //
@@ -79,5 +91,6 @@ class OSSApi {
 //
 //        System.out.println(result);
 //
+//        delObject("ssb-img-debug", Arrays.asList("banner1.png"))
 //    }
 }

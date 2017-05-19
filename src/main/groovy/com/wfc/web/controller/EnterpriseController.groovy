@@ -63,4 +63,10 @@ class EnterpriseController {
         "success"
     }
 
+    @RequestMapping("/delPhoto")
+    Object delPhoto() {
+        enterpriseService.delPhoto()
+        "success"
+    }
+
 }

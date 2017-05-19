@@ -33,4 +33,6 @@ interface EnterpriseService {
     def listVideoDir2File()
 
     def updateLocation()
+
+    def delPhoto()
 }

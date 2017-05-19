@@ -1,7 +1,11 @@
 package com.wfc.web.service.impl
 
+import com.sun.xml.internal.ws.developer.EPRRecipe
+import com.wfc.web.common.aliyun.OSSApi
+import com.wfc.web.common.aliyun.OSSConstants
 import com.wfc.web.common.utils.POIUtils
 import com.wfc.web.common.utils.UploadUtils
+import com.wfc.web.mapper.EnterprisePhoto1Mapper
 import com.wfc.web.mapper.EnterprisePhotoMapper
 import com.wfc.web.model.EnterprisePhoto
 import com.wfc.web.mongodb.MongoEnterpriseDAO
@@ -35,6 +39,8 @@ class EnterpriseServiceImpl implements EnterpriseService {
     EnterpriseMapper enterpriseMapper
     @Autowired
     EnterprisePhotoMapper enterprisePhotoMapper
+    @Autowired
+    EnterprisePhoto1Mapper enterprisePhoto1Mapper
     @Autowired
     MongoEnterpriseDAO mongoEnterpriseDAO
     @Value('${config.locationExcelFilePath}')
@@ -110,6 +116,7 @@ class EnterpriseServiceImpl implements EnterpriseService {
             }
 
             for (String line : lines) {
+                line.replace('\n', '')
                 println(line)
                 String[] splits = line.split(' ')
                 if (splits.length == 3) {
@@ -176,6 +183,7 @@ class EnterpriseServiceImpl implements EnterpriseService {
             eps = new PrintStream(new FileOutputStream(elf))
             UploadUtils.listPhotoDir({
                 String name, List ds ->
+                    println(name)
                     List<Integer> ids = enterpriseMapper.getIdsByShortName(name)
                     String s = "${name} ${ids.join(',')} ${ds.join(',')}\n"
                     list.add(s)
@@ -207,6 +215,7 @@ class EnterpriseServiceImpl implements EnterpriseService {
             fr = new FileReader(UploadUtils.VF_NAME)
             List<String> lines = fr.readLines()
             for (String line : lines) {
+                line.replace('\n', '')
                 println(line)
                 String[] splits = line.split(' ')
                 if (splits.length == 4) {
@@ -307,4 +316,25 @@ class EnterpriseServiceImpl implements EnterpriseService {
             e.printStackTrace()
         }
     }
+
+    def delPhoto() {
+        int start = 0, offset = 1000
+        int count = enterprisePhoto1Mapper.enterprisePhotoCount()
+        int p = count / offset
+        for (i in 0.. p) {
+            start *=1000
+            List<EnterprisePhoto> eps = enterprisePhoto1Mapper.getEnterprisePhotos(start, offset)
+            Set<String> set = new HashSet<>()
+            for (EnterprisePhoto ep : eps) {
+                String s = ep.getPhoto();
+                s = s.replace('http://ssb-img.shangshaban.com/', '')
+                set.add(s)
+                println(s)
+            }
+            List<String> list = new ArrayList<>()
+            list.addAll(set)
+            OSSApi.delObject("ssb-img", list)
+        }
+    }
+
 }
