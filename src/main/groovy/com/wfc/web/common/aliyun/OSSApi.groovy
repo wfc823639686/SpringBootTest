@@ -2,9 +2,11 @@ package com.wfc.web.common.aliyun
 
 import com.aliyun.oss.HttpMethod
 import com.aliyun.oss.OSSClient
+import com.aliyun.oss.OSSException
 import com.aliyun.oss.model.DeleteObjectsRequest
 import com.aliyun.oss.model.DeleteObjectsResult
 import com.aliyun.oss.model.GeneratePresignedUrlRequest
+import com.aliyun.oss.model.ObjectMetadata
 import com.aliyun.oss.model.PutObjectResult
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Value
@@ -84,13 +86,27 @@ class OSSApi {
         client.shutdown();
     }
 
+    static ObjectMetadata getObjectMetadata(String bucketName, String key) {
+        OSSClient client = new OSSClient(OSSConstants.ENDPOINT, OSSConstants.ACCESS_KEY, OSSConstants.SECRET_KEY)
+        return client.getObjectMetadata(bucketName, key)
+    }
 
-//    static void main(String[] args) throws Exception {
+
+    static void main(String[] args) throws Exception {
 //
 //        Object result = putObject(OSSConstants.RES_BUCKET_NAME, "userhead/shouye1.jpg", "/Users/wangfengchen/Downloads/shouye1.jpg");
 //
 //        System.out.println(result);
 //
 //        delObject("ssb-img-debug", Arrays.asList("banner1.png"))
-//    }
+        OSSConstants.debug("NHJKJtRUZVRn0X5G", "2bAaFk4Leex6LvYlXkafPD3WSXdGSE")
+        try {
+            ObjectMetadata om = getObjectMetadata("ssb-img", "Image_20160817005751.png")
+            println(om)
+        } catch (OSSException e) {
+            if ("NoSuchKey".equals(e.getErrorCode())) {
+                println("NoSuchKey")
+            }
+        }
+    }
 }
