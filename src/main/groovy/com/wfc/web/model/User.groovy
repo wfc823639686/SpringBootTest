@@ -10,4 +10,5 @@ class User {
     String name, phone, head
     String enterprisePosition
     Timestamp hiringLastLoginTime
+    String easeMobName, easeMobPassword
 }

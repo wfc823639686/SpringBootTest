@@ -14,16 +14,16 @@ class RestClient {
     static RestTemplate restTemplate
 
     static {
-        ClientHttpRequestInterceptor headerInterceptor =
-                new AcceptHeaderHttpRequestInterceptor()
+//        ClientHttpRequestInterceptor headerInterceptor =
+//                new AcceptHeaderHttpRequestInterceptor()
         restTemplate = new RestTemplate()
-        restTemplate.setInterceptors(Collections.singletonList(headerInterceptor))
+//        restTemplate.setInterceptors(Collections.singletonList(headerInterceptor))
     }
 
-    static Map post(String url, Map<String, String> params) {
+    static String post(String url, Map<String, String> params) {
         MultiValueMap<String, String> mvm = new LinkedMultiValueMap<String, String>()
         mvm.setAll(params)
-        restTemplate.postForObject(url, mvm, Map.class)
+        restTemplate.postForObject(url, mvm, String.class)
     }
 
     static Map get(String url, String... urlVariables) {
@@ -34,14 +34,14 @@ class RestClient {
         restTemplate.getForObject(url, Map.class, urlVariables)
     }
 
-    static class AcceptHeaderHttpRequestInterceptor implements ClientHttpRequestInterceptor {
-
-        @Override
-        ClientHttpResponse intercept(HttpRequest httpRequest, byte[] bytes, ClientHttpRequestExecution clientHttpRequestExecution) throws IOException {
-            HttpRequestWrapper requestWrapper = new HttpRequestWrapper(httpRequest);
-            requestWrapper.getHeaders().add('Authorization', 'APPCODE ' + APP_CODE)
-            return clientHttpRequestExecution.execute(requestWrapper, bytes)
-        }
-    }
+//    static class AcceptHeaderHttpRequestInterceptor implements ClientHttpRequestInterceptor {
+//
+//        @Override
+//        ClientHttpResponse intercept(HttpRequest httpRequest, byte[] bytes, ClientHttpRequestExecution clientHttpRequestExecution) throws IOException {
+//            HttpRequestWrapper requestWrapper = new HttpRequestWrapper(httpRequest);
+//            requestWrapper.getHeaders().add('Authorization', 'APPCODE ' + APP_CODE)
+//            return clientHttpRequestExecution.execute(requestWrapper, bytes)
+//        }
+//    }
 
 }

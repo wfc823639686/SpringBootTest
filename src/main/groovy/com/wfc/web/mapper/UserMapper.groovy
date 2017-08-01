@@ -32,7 +32,13 @@ interface UserMapper {
             @Param("phone") String phone);
 
     @UpdateProvider(type = UserSqlBuilder.class, method = "buildUpdate")
-    int update(User user);
+    int update(User user)
+
+    @Select("select id, ease_mob_name, ease_mob_password from user where ease_mob_name is null")
+    List<User> getByEaseMobNameIsNull()
+
+    @Update("update user set ease_mob_name=#{easeMobName}, ease_mob_password=#{easeMobPassword} where id=#{id}")
+    int updateEaseMob(User user)
 
     class UserSqlBuilder {
 

@@ -22,5 +22,7 @@ interface EnterpriseCommodityMapper {
         on co.id = ec.commodity_id
         WHERE enterprise_id=#{0}
     ''')
-    List<EnterpriseCommodity> getCommodities(Integer id);
+    List<EnterpriseCommodity> getCommodities(Integer id)
+
+    List getLessThan6()
 }
